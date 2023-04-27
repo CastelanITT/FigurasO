@@ -1,2 +1,2 @@
-# Figuras
-Ejemplo de p5js
+# Proyecto Cuadrito Que come Mucho
+Mi proyecto se basa en que un cuadro de color va en busca de comida en el cual se topa varias manzanas rojas que caen del cielo las cuales suman puntos para satisfacer su estomago, este juego es eso, con las telcas del teclado puedes moverte y recoger cada una de las manzanas te suman puntos hay un puntuador que esta en la parte superior izquierda la cual te cuenta cada vez que comes una manzana, una vez llegado a 50 puntos automaticamente sale un  mensaje que dice "Subiste de Nivel" al pasar estos puntos las manzanas caen cada vez mas rapido. Tu objetivo es conseguir el mayor puntaje posible.
