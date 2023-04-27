@@ -1,102 +1,98 @@
-class Figura {
-   constructor(x, y, alto, ancho, vx, vy) {
-    this.posicion = createVector(x,y);
-    this.alto = alto;
-    this.ancho = ancho;
-    this.fillred = 255;
-    this.fillgreen = 87;
-    this.fillblue = 57;
-    this.velocidad = createVector(vx,vy);
+class GameObject {
+  constructor(x, y) {
+    this.position = createVector(x, y);
   }
-  update()
-  {
-      if (this.posicion.x + this.ancho >= 400)
-        {  
-          let valor = random(3); 
-          this.velocidad.x = this.velocidad.x * -valor;
-         this.velocidad.y = this.velocidad.y * -valor;
-        }
-      this.posicion.add(this.velocidad);
-  }
-  
-}
 
-class Rectangulo extends Figura{
-  constructor(x, y, alto, ancho, vx, vy) {
-      super(x, y, alto, ancho, vx, vy);
-  }
-  
-draw()
-  {
-fill(this.fillred,this.fillgreen,this.fillblue);
-rect(this.posicion.x,this.posicion.y,this.alto,this.ancho);
+  draw() {
+    // APLICO HERENCIA AQUI
   }
 }
 
-class Elipse extends Figura{
-  constructor(x, y, alto, ancho, vx, vy) {
-      super(x, y, alto, ancho, vx, vy);
+class FallingObject extends GameObject {
+  constructor(x, y, speed) {
+    super(x, y);
+    this.speed = speed;
   }
-  
-draw()
-  {
-fill(this.fillred,this.fillgreen,this.fillblue);
-ellipse(this.posicion.x,this.posicion.y,this.alto,this.ancho);
+
+  update() {
+    this.position.y += this.speed;
+  }
+
+  draw() {
+    fill(200, 0, 0);
+    circle(this.position.x, this.position.y, 50);
   }
 }
 
-var figuras = [];
-var dibujando = 'circulo';
-var btnCirculo = null;
-var btnRectangulo = null;
-
-
-function mouseClicked() {
-  // Se crea un objeto según la opción actual
-if (mouseY > 25)
-  {
-  if (dibujando == 'circulo')
-    figuras.push(new Elipse(mouseX,mouseY,20,20,3,1));
-  else if (dibujando == 'rectangulo')
-    figuras.push(new Rectangulo(mouseX,mouseY,20,20,2,1));
+class PlayerObject extends GameObject {
+  move(x, y) {
+    this.position.x += x;
+    this.position.y += y;
   }
 
-  return false;
+  draw() {
+    fill(0, 125, 0);
+    rect(this.position.x - 25, this.position.y - 25, 50, 50);
+  }
 }
+
+//mis variables
+let player;
+let fallingObjects = [];
+let score = 0; 
+
 
 function setup() {
-  createCanvas(400, 400);
-  
-  btnCirculo = createButton('Circulo');
-  btnCirculo.position(0, 0);
-  btnCirculo.mousePressed(changeCirculo);
-  btnCirculo.style( 'background-color','#cccccc');
-  
-  btnRectangulo = createButton('Rectangulo');
-  btnRectangulo.position(75, 0);
-  btnRectangulo.mousePressed(changeRectangulo);
+  createCanvas(800, 700);
+  player = new PlayerObject(width / 2, height - 50);
+  for (let i = 0; i < 10; i++) {
+    fallingObjects.push(new FallingObject(random(width), 0, random(3, 8)));
+  }
 }
 
-function changeCirculo()
-   {
-     btnCirculo.style( 'background-color','#cccccc');
-     btnRectangulo.style( 'background-color','#f0f0f0');
-     dibujando = 'circulo';
-   }
-function changeRectangulo()
-   {
-     btnRectangulo.style( 'background-color','#cccccc');
-     btnCirculo.style( 'background-color','#f0f0f0');
-     dibujando = 'rectangulo';
-   }
-
- 
-
 function draw() {
-  background(220);
-  figuras.forEach((fig) => 
-   {
-    fig.draw();
-    fig.update();
-   });
+  background(50);
+  
+
+  // objetos que caen
+  
+fallingObjects.forEach((obj, index) => {
+  obj.update();
+  obj.draw();
+
+  // reinicia el objeto si sale del marco
+  if (obj.position.y > height + 50) {
+    fallingObjects.splice(index, 1);
+    fallingObjects.push(new FallingObject(random(width), 0, random(3, 8)));
+  }
+
+  // si el jugador se come un objeto que cae, eliminar el objeto y sumar 10 puntos
+  
+  if (dist(obj.position.x, obj.position.y, player.position.x, player.position.y) < 50) {
+    fallingObjects.splice(index, 1);
+    score += 10;
+  }
+});
+
+// si se llega a la puntuacion maxima, mostrar un mensaje de subes de nivel y sean mas rapidos
+  
+if (score >= 50) {
+  textSize(32);
+  fill(255);
+  textAlign(CENTER);
+  text("¡Subes de nivel!", width/2, height/2);
+  fallingObjects.forEach(obj => {
+    obj.size = 30;
+    obj.speed = random(5, 10);
+  });
+}
+
+  //El cuadrito verde
+  player.move(keyIsDown(LEFT_ARROW) ? -5 : keyIsDown(RIGHT_ARROW) ? 5 : 0, 0);
+  player.draw();
+  
+  // mostrar la puntuacion
+  textSize(32);
+  fill(0);
+  text("Score: " + score, 10, 50);
 }
